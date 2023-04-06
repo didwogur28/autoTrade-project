@@ -19,10 +19,10 @@ def get_current_price(ticker):  # 현재 가격 가져오기
     return pyupbit.get_orderbook(ticker=ticker)['orderbook_units'][0]['ask_price']
 
 
-def get_balance(currency):  # 잔고 조회
+def get_balance(coinName):  # 잔고 조회
     balances = upbit.get_balances()
     for b in balances:
-        if b['currency'] == currency:
+        if b['currency'] == coinName:
             if b['balance'] is not None:
                 return float(b['balance'])
             else:
@@ -49,26 +49,27 @@ def get_trade_time(ticker):  # 최근 거래 채결 날짜 가져오기
 ##########################################################################################################
 
 # 로그인
-access = '[ACCESS_KEY]'
-secret = '[SECRET_kEY]'
+access = 'gOCxLlrH1eIzNDrrEGsueF6ZO9olESa5Et4yeOPJ'
+secret = 'x4f1zbI346DkHCETnGwQIx5p8N288Y8BGP2NhykV'
 
 upbit = pyupbit.Upbit(access, secret)
 print("Login OK")
 
 # 총 매수 할 원화, 분할 매수 비율
-total = 3000000
+total = 3500000
 rate30 = 0.3
 rate40 = 0.4
 rate_minus = 0.95
 
 # 시간 간격
-interval = "day"
-# interval = "minute240"
+# interval = "day"
+interval = "minute240"
 
-# ticker, k, currency
-ticker = "KRW-STPT"
+# ticker, k, currency, coinName
+ticker = "KRW-ONT"
 currency = "KRW"
 k = 0.12
+coinName = "ONT"
 
 # 자동 매매 무한반복
 while True:
@@ -76,8 +77,8 @@ while True:
     # 시간 설정
     start_time = get_start_time(ticker, interval)
     now = datetime.datetime.now()
-    end_time = start_time + datetime.timedelta(days=1) - datetime.timedelta(seconds=5)
-    # end_time = start_time + datetime.timedelta(minutes=240) - datetime.timedelta(seconds=5)
+    # end_time = start_time + datetime.timedelta(days=1) - datetime.timedelta(seconds=5)
+    end_time = start_time + datetime.timedelta(minutes=240) - datetime.timedelta(seconds=5)
 
     # 매매 시작
     if start_time < now < end_time:
@@ -87,40 +88,52 @@ while True:
         print("Target price: %d" % (target_price))
 
         i = 0
-        while i < 3:
+        while i < 10:
             now = datetime.datetime.now()
             current_price = get_current_price(ticker)
             time.sleep(0.5)
 
             # 매수 1차
-            if i == 0 and (target_price - 0.05) <= current_price < (target_price + 0.1):
-                upbit.buy_market_order(ticker, total * rate30)
-                time.sleep(1)
-                buy_average = get_buy_average(currency)
-                i += 1
-                print("%dst Buy OK" % (i))
+            if i == 0 and (target_price - 5) <= current_price < (target_price + 10):
+
+                try:
+                    upbit.buy_market_order(ticker, total * rate30)
+                    time.sleep(1)
+                    buy_average = get_buy_average(currency)
+                    i += 1
+                    print("%dst Buy OK" % (i))
+                except:
+                    print("잔고가 부족합니다!")
 
                 # 매수 2차
             if i == 1 and current_price < buy_average * rate_minus:
-                upbit.buy_market_order(ticker, total * rate30)
-                time.sleep(1)
-                buy_average = get_buy_average(currency)
-                i += 1
-                print("%dnd Buy OK" % (i))
+
+                try:
+                    upbit.buy_market_order(ticker, total * rate30)
+                    time.sleep(1)
+                    buy_average = get_buy_average(currency)
+                    i += 1
+                    print("%dst Buy OK" % (i))
+                except:
+                    print("잔고가 부족합니다!")
 
             # 매수 3차
             if i == 2 and current_price < buy_average * rate_minus:
-                upbit.buy_market_order(ticker, total * rate40)
-                time.sleep(1)
-                buy_average = get_buy_average(currency)
-                i += 1
-                print("%drd Buy OK" % (i))
+
+                try:
+                    upbit.buy_market_order(ticker, total * rate40)
+                    time.sleep(1)
+                    buy_average = get_buy_average(currency)
+                    i += 1
+                    print("%dst Buy OK" % (i))
+                except:
+                    print("잔고가 부족합니다!")
 
             if now > end_time:
                 break
 
     elif now > end_time:
-        coin = get_balance(currency)
+        coin = get_balance(coinName)
         upbit.sell_market_order(ticker, coin)
         time.sleep(1)
         print("Sell OK")
