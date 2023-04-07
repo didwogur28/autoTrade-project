@@ -3,6 +3,7 @@ import time
 import datetime
 import pandas as pd
 from pyupbit.request_api import _send_get_request, _send_post_request, _send_delete_request
+import keyboard
 
 def set_initial_order(ticker):
 
@@ -89,7 +90,7 @@ def get_trade_time(ticker):  # 최근 거래 채결 날짜 가져오기
 
 # 로그인
 access = '[ACCESS_KEY]'
-secret = '[SECRET_kEY]'
+secret = '[SECRET_KEY]'
 
 upbit = pyupbit.Upbit(access, secret)
 print("Login OK")
@@ -115,10 +116,50 @@ sell_amount = 0
 print(coin_amount)
 print(upbit.get_order(ticker))
 
+balances = upbit.get_balances()
+
+print(balances)
+for b in balances:
+    if b['currency'] == currency:
+        if b['balance'] is not None:
+            print(float(b['balance']))
+        else:
+            print(0)
+
 # 자동 매매 무한반복
+
+    # answer = input("명령을 입력하세요.\n'q'를 입력하면 프로그램이 종료됩니다.:")
+    # if answer == "q":
+    #     break
+    # print("'{0}'를 입력하셨습니다.".format(answer))
+
+
+i = 0
+start_chk = 'Y'
 while True:
-    print(upbit.GetTradesTicks())
-    time.sleep(1)
+
+    while start_chk == 'Y':
+        time.sleep(0.5)
+
+            # answer = input("명령을 입력하세요.\n'q'를 입력하면 프로그램이 종료됩니다.:")
+            # if answer == "q":
+            #     break
+            # print("'{0}'를 입력하셨습니다.".format(answer))
+
+        i += 1
+        print(i)
+
+        if keyboard.is_pressed('n'):
+            start_chk = 'N'
+
+    print('프로그램 일시정지')
+
+    if keyboard.is_pressed('s'):
+        start_chk = 'Y'
+
+    time.sleep(0.5)
+#     print(upbit.GetTradesTicks())
+#     time.sleep(1)
     # 상태 조회
 
 
