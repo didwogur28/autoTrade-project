@@ -102,7 +102,7 @@ while True:
         if start_time < now < end_time:
 
             if targetPriceCnt == 0:
-                target_price = get_target_price(ticker, intervalDay, k)
+                target_price = round(get_target_price(ticker, intervalDay, k), 2)
 
             print("Start: %s" % (start_time))
             print("End: %s" % (end_time))
@@ -114,20 +114,22 @@ while True:
 
             while i < 3:
                 now = datetime.datetime.now()
-                current_price = get_current_price(ticker)
+                current_price = round(get_current_price(ticker), 2)
+                current_count = get_balance("KRW")
+                avgBuyPrice = round(upbit.get_avg_buy_price(coinName), 2)
                 time.sleep(0.5)
 
                 if printCnt % 60 == 0:
                     print("====================")
-                    print(target_price)
-                    print(current_price)
+                    print("코인 매수 가격: %f" % (target_price))
+                    print("현재 코인 가격: %f" % (current_price))
+                    print("현재 잔고: %d" % (current_count))
+                    print("코인 매수 평균가: %f" % (avgBuyPrice))
                     print("====================")
-
-                current_count = get_balance("KRW")
 
                 # 매수 1차
                 if i == 0 and (target_price - 0.1) <= current_price < (target_price + 0.05):
-                # if i == 0 and target_price == current_price:
+                    # if i == 0 and target_price == current_price:
 
                     print("1차 매수 시작")
 
@@ -136,9 +138,9 @@ while True:
                             upbit.buy_market_order(ticker, total * rate30)
                             time.sleep(1)
                             buy_average = get_buy_average(currency)
+                            print("%dst Buy OK" % (i))
 
                         i += 1
-                        print("%dst Buy OK" % (i))
 
                     except Exception as e:
                         trace_back = traceback.format_exc()
@@ -155,8 +157,9 @@ while True:
                             upbit.buy_market_order(ticker, total * rate30)
                             time.sleep(1)
                             buy_average = get_buy_average(currency)
+                            print("%dst Buy OK" % (i))
+
                         i += 1
-                        print("%dst Buy OK" % (i))
 
                     except Exception as e:
                         trace_back = traceback.format_exc()
@@ -173,25 +176,28 @@ while True:
                             upbit.buy_market_order(ticker, total * rate40)
                             time.sleep(1)
                             buy_average = get_buy_average(currency)
+                            print("%dst Buy OK" % (i))
+
                         i += 1
-                        print("%dst Buy OK" % (i))
 
                     except Exception as e:
                         trace_back = traceback.format_exc()
                         message = str(e) + "\n" + str(trace_back)
                         print(message)
 
-                if i != 0 and round((buy_average / current_price), 2) <= 0.98:
+                if i != 0 and round((avgBuyPrice / current_price), 2) <= 0.98:
 
                     print("2프로 이상 상승 판매")
-                    coin = get_balance(coinName)
                     upbit.sell_market_order(ticker, coin)
                     time.sleep(1)
                     break
 
                 if now > end_time:
 
-                    if buy_average > current_price:
+                    if avgBuyPrice < current_price:
+
+                        print("시간 끝 코인 매도")
+
                         coin = get_balance(coinName)
                         upbit.sell_market_order(ticker, coin)
                         time.sleep(1)
@@ -205,8 +211,13 @@ while True:
                     start_chk = "N"
                     break
 
-            if i != 0 and round((buy_average / current_price), 2) <= 0.98:
+            avgBuyPrice = upbit.get_avg_buy_price(coinName)
+            print("코인 매수 평균가: %f" % (avgBuyPrice))
+
+            if i != 0 and round((avgBuyPrice / current_price), 2) <= 0.98:
+
                 print("2프로 이상 상승 판매")
+
                 coin = get_balance(coinName)
                 upbit.sell_market_order(ticker, coin)
                 time.sleep(1)
@@ -214,7 +225,12 @@ while True:
 
         elif now > end_time:
 
-            if buy_average > current_price:
+            avgBuyPrice = upbit.get_avg_buy_price(coinName)
+            print("코인 매수 평균가: %f" % (avgBuyPrice))
+
+            if avgBuyPrice < current_price:
+
+                print("시간 끝 코인 매도")
 
                 coin = get_balance(coinName)
                 upbit.sell_market_order(ticker, coin)
