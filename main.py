@@ -123,16 +123,20 @@ while True:
                     print(current_price)
                     print("====================")
 
+                current_count = get_balance("KRW")
+
                 # 매수 1차
-                if i == 0 and (target_price - 0.05) <= current_price < (target_price + 0.05):
+                if i == 0 and (target_price - 0.1) <= current_price < (target_price + 0.05):
                 # if i == 0 and target_price == current_price:
 
                     print("1차 매수 시작")
 
                     try:
-                        upbit.buy_market_order(ticker, total * rate30)
-                        time.sleep(1)
-                        buy_average = get_buy_average(currency)
+                        if current_count > total * rate30:
+                            upbit.buy_market_order(ticker, total * rate30)
+                            time.sleep(1)
+                            buy_average = get_buy_average(currency)
+
                         i += 1
                         print("%dst Buy OK" % (i))
 
@@ -147,9 +151,10 @@ while True:
                     print("2차 매수 시작")
 
                     try:
-                        upbit.buy_market_order(ticker, total * rate30)
-                        time.sleep(1)
-                        buy_average = get_buy_average(currency)
+                        if current_count > total * rate30:
+                            upbit.buy_market_order(ticker, total * rate30)
+                            time.sleep(1)
+                            buy_average = get_buy_average(currency)
                         i += 1
                         print("%dst Buy OK" % (i))
 
@@ -164,9 +169,10 @@ while True:
                     print("3차 매수 시작")
 
                     try:
-                        upbit.buy_market_order(ticker, total * rate40)
-                        time.sleep(1)
-                        buy_average = get_buy_average(currency)
+                        if current_count > total * rate30:
+                            upbit.buy_market_order(ticker, total * rate40)
+                            time.sleep(1)
+                            buy_average = get_buy_average(currency)
                         i += 1
                         print("%dst Buy OK" % (i))
 
