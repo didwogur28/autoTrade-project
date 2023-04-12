@@ -59,7 +59,7 @@ upbit = pyupbit.Upbit(access, secret)
 print("Login OK")
 
 # 총 매수 할 원화, 분할 매수 비율
-total = 7000000
+total = 4000000
 rate30 = 0.3
 rate40 = 0.4
 rate_minus = 0.95
@@ -188,6 +188,8 @@ while True:
                 if i != 0 and round((avgBuyPrice / current_price), 2) <= 0.98:
 
                     print("2프로 이상 상승 판매")
+
+                    coin = get_balance(coinName)
                     upbit.sell_market_order(ticker, coin)
                     time.sleep(1)
                     break
