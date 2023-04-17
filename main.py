@@ -56,7 +56,6 @@ access = '[ACCESS_KEY]'
 secret = '[SECRET_KEY]'
 
 upbit = pyupbit.Upbit(access, secret)
-print("Login OK")
 
 # 총 매수 할 원화, 분할 매수 비율
 total = 4000000
